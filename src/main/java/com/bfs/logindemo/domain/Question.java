@@ -24,4 +24,11 @@ public class Question {
     public List<Choice> getChoices() {
         return choices;
     }
+
+    public boolean getActive(){
+        return isActive;
+    }
+    public boolean isActive(){
+        return isActive;
+    }
 }

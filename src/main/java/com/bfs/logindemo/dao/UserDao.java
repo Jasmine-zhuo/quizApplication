@@ -25,8 +25,20 @@ public class UserDao {
     }
 
     public List<User> findAll() {
-        String sql = "select * from User";
-        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
+        String sql = "SELECT user_id, email, password, firstname, lastname, is_active, is_admin FROM User";
+        //return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            User user = new User();
+            user.setUserId(rs.getInt("user_id"));
+            user.setEmail(rs.getString("email"));
+            user.setPassword(rs.getString("password"));
+            user.setFirstname(rs.getString("firstname"));
+            user.setLastname(rs.getString("lastname"));
+            // Manually map the isActive field
+            user.setActive(rs.getBoolean("is_active")); // This line should correctly map the database boolean values
+            user.setAdmin(rs.getBoolean("is_admin"));
+            return user;
+        });
     }
 
     public Optional<User> findById(int userId) {
@@ -35,6 +47,7 @@ public class UserDao {
                 .stream()
                 .findFirst();
     }
+
 
     public User getUserByEmail(String email) {
         String sql = "select * from user where email = ?";
@@ -45,12 +58,12 @@ public class UserDao {
         String sql = "insert into User(email,password, firstname, lastname, is_active, is_admin) values(?,?,?,?,?,?)";
         jdbcTemplate.update(sql, user.getEmail(),
                 user.getPassword(), user.getFirstname(),
-                user.getLastname(),user.getActive(), user.isAdmin());
+                user.getLastname(),user.isActive(), user.isAdmin());
     }
 
     public void update(User user) {
         String sql = "UPDATE User SET email = ?, password = ?, firstname = ?, lastname = ?, is_active = ?, is_admin = ? WHERE user_id = ?";
-        jdbcTemplate.update(sql, user.getEmail(), user.getPassword(), user.getFirstname(), user.getLastname(), user.getActive(), user.isAdmin(), user.getUserId());
+        jdbcTemplate.update(sql, user.getEmail(), user.getPassword(), user.getFirstname(), user.getLastname(), user.isActive(), user.isAdmin(), user.getUserId());
     }
 
     public void delete(int id) {

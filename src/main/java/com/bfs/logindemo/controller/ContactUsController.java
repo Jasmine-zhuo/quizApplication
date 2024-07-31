@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -38,4 +39,12 @@ public class ContactUsController {
        redirectAttributes.addFlashAttribute("successMessage", "Your message has been submitted successfully.");
        return "redirect:/home";
     }
+
+    @GetMapping("/contact/view/{id}")
+    public String viewContactMessage(@PathVariable("id") int id, Model model) {
+        Contact contact = contactService.getContactById(id);
+        model.addAttribute("contact", contact);
+        return "view-contact-message";
+    }
+
 }

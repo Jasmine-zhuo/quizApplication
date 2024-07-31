@@ -6,6 +6,46 @@
 <html>
 <head>
     <title>Quiz Result Management</title>
+    <style>
+        /* Style the table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+
+        /* Style the action links */
+        a, button {
+            color: #007BFF;
+            text-decoration: none;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        a:hover, button:hover {
+            text-decoration: underline;
+        }
+
+        /* Add some space above the table */
+        h2 {
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
 <h2>Quiz Result Management</h2>

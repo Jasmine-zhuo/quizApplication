@@ -6,8 +6,11 @@ import com.bfs.logindemo.domain.Question;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -107,10 +110,6 @@ public class QuestionDao {
         }
     }
 
-    public void updateChoice(Choice choice) {
-        String sql = "UPDATE Choice SET description = ?, isCorrect = ? WHERE choice_id = ?";
-        jdbcTemplate.update(sql, choice.getDescription(), choice.isCorrect(), choice.getChoiceId());
-    }
 
     public void delete(int id) {
         String sql = "DELETE FROM Question WHERE question_id = ?";
@@ -146,7 +145,7 @@ public class QuestionDao {
         return question;
     }
     public void toggleQuestionStatus(int questionId) {
-        String sql = "UPDATE Question SET active = NOT active WHERE question_id = ?";
+        String sql = "UPDATE Question SET is_active = NOT is_active WHERE question_id = ?";
         jdbcTemplate.update(sql, questionId);
     }
     private static class QuestionWithCategoryRowMapper implements RowMapper<QuestionWithCategoryDTO> {
@@ -170,4 +169,35 @@ public class QuestionDao {
                 "JOIN Category c ON q.category_id = c.category_id";
         return jdbcTemplate.query(sql, new QuestionWithCategoryRowMapper());
     }
+    public List<Choice> findChoicesByQuestionId(int questionId) {
+        String sql = "SELECT * FROM Choice WHERE question_id = ?";
+        return jdbcTemplate.query(sql, new Object[]{questionId}, new BeanPropertyRowMapper<>(Choice.class));
+    }
+
+    public void updateQuestionDescription(int questionId, String description) {
+        String sql = "UPDATE Question SET description = ? WHERE question_id = ?";
+        jdbcTemplate.update(sql, description, questionId);
+    }
+
+    public void updateChoice(Choice choice) {
+        String sql = "UPDATE Choice SET description = ?, is_correct = ? WHERE choice_id = ?";
+        jdbcTemplate.update(sql, choice.getDescription(), choice.isCorrect(), choice.getChoiceId());
+    }
+    public int addQuestion(int categoryId, String description) {
+        String sql = "INSERT INTO Question (category_id, description, is_active) VALUES (?, ?, TRUE)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"question_id"});
+            ps.setInt(1, categoryId);
+            ps.setString(2, description);
+            return ps;
+        }, keyHolder);
+        return keyHolder.getKey().intValue();
+    }
+
+    public void addChoice(int questionId, String description, boolean isCorrect) {
+        String sql = "INSERT INTO Choice (question_id, description, is_correct) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, questionId, description, isCorrect);
+    }
+
 }
