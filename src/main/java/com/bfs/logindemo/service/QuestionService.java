@@ -5,6 +5,7 @@ import com.bfs.logindemo.domain.Choice;
 import com.bfs.logindemo.domain.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.bfs.logindemo.dao.QuestionWithCategoryDTO;
 
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,9 @@ public class QuestionService {
         }
         return questions;
     }
+    public List<Question> getAllQuestions() {
+        return questionDao.getAllQuestions();
+    }
 
     public Question getQuestionById(int id) {
         return questionDao.findById(id);
@@ -71,4 +75,10 @@ public class QuestionService {
         questionDao.delete(id);
     }
 
+    public List<QuestionWithCategoryDTO> getAllQuestionsWithCategoryName() {
+        return questionDao.findAllQuestionsWithCategoryName();
+    }
+    public void toggleQuestionStatus(int questionId) {
+        questionDao.toggleQuestionStatus(questionId);
+    }
 }

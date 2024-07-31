@@ -2,6 +2,8 @@ package com.bfs.logindemo.service;
 
 import com.bfs.logindemo.dao.QuestionDao;
 import com.bfs.logindemo.dao.QuizDao;
+import com.bfs.logindemo.dao.QuizWithDetailsDTO;
+import com.bfs.logindemo.dao.UserDao;
 import com.bfs.logindemo.domain.Category;
 import com.bfs.logindemo.domain.Quiz;
 import com.bfs.logindemo.domain.Question;
@@ -19,12 +21,14 @@ public class QuizService {
     private final QuizDao quizDao;
     private final QuestionDao questionDao;
     private final JdbcTemplate jdbcTemplate;
+    private final UserDao userDao ;
 
     @Autowired
-    public QuizService(QuestionDao questionDao, QuizDao quizDao, JdbcTemplate jdbcTemplate) {
+    public QuizService(QuestionDao questionDao, QuizDao quizDao, JdbcTemplate jdbcTemplate, UserDao userDao) {
         this.questionDao = questionDao;
         this.quizDao = quizDao;
         this.jdbcTemplate = jdbcTemplate;
+        this.userDao = userDao;
     }
 
     public List<Question> getRandomQuestionsByCategory(int categoryId) {
@@ -97,6 +101,7 @@ public class QuizService {
         return quizDao.findAll();
     }
 
+
     public void updateQuizEndTime(int quizId) {
         quizDao.updateQuizEndTime(quizId);
     }
@@ -110,5 +115,14 @@ public class QuizService {
 
     public List<Choice> getChoicesByQuestionId(int questionId) {
         return questionDao.getChoicesByQuestionId(questionId);
+    }
+    public List<QuizWithDetailsDTO> getAllQuizzesWithUserDetails() {
+        return quizDao.findAllWithUserDetails();
+    }
+    public User getUserById(int userId) {
+        return userDao.findById(userId).orElse(null);
+    }
+    public List<QuizWithDetailsDTO> getQuizzesWithFilters(Integer categoryId, Integer userId) {
+        return quizDao.findAllWithFilters(categoryId, userId);
     }
 }

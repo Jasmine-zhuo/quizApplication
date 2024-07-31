@@ -13,6 +13,26 @@ public class User {
     private String password;
     private String firstname;
     private String lastname;
-    private boolean isActive;
+    private boolean isActive = true;
     private boolean isAdmin;
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
+//    public boolean isActive() {
+//        return isActive;
+//    }
+    public boolean getActive() {
+        return isActive;
+    }
+    public boolean getIsActive() {
+        return isActive;
+    }
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
 }

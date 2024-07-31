@@ -136,9 +136,22 @@ public class QuizController {
         }
 
         Quiz quiz = quizService.getQuizById(quizId);
-        if (quiz == null || quiz.getUserId() != user.getUserId()) {
+        if (quiz == null) {
             return "redirect:/home";
         }
+
+        Boolean isAdmin = (Boolean) session.getAttribute("isAdmin");
+        if (isAdmin == null) {
+            isAdmin = false; // Default to false if not set
+        }
+//        System.out.println("User is admin: " + isAdmin);
+//        System.out.println("Quiz userId: " + quiz.getUserId() + ", Logged in userId: " + user.getUserId());
+
+        if (!isAdmin && quiz.getUserId() != user.getUserId()) {
+            return "redirect:/home";
+        }
+
+        User quizOwner = quizService.getUserById(quiz.getUserId());
 
         List<Question> questions = quizService.getQuestionsByQuizId(quizId);
         List<Integer> selectedChoiceIds = quizService.getSelectedChoicesByQuizId(quizId);
@@ -176,6 +189,8 @@ public class QuizController {
         model.addAttribute("questions", questions);
         model.addAttribute("quiz", quiz); // Adding the quiz object to the model
         model.addAttribute("selectedChoices", selectedChoiceIds); // Adding the selected choices to the model
+        model.addAttribute("quizOwner", quizOwner);
+        model.addAttribute("isAdmin", isAdmin);
 
         return "quiz-result";
     }

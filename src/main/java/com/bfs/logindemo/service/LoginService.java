@@ -17,7 +17,9 @@ public class LoginService {
     public boolean validateLogin(String username, String password) {
         return userService.validateLogin(username, password);
     }
-
+    public boolean validateAdminLogin(String email, String password) {
+        return userService.validateAdminLogin(email, password);
+    }
     public UserService userService() {
         return userService;
     }

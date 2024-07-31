@@ -44,6 +44,10 @@ public class QuestionDao {
             return choice;
         }
     }
+    public List<Question> getAllQuestions() {
+        String sql = "SELECT * FROM Question";
+        return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Question.class));
+    }
     public List<Question> findByCategoryId(int categoryId) {
         String sql = "SELECT * FROM Question WHERE category_id = ?";
         return jdbcTemplate.query(sql, new Object[]{categoryId}, new QuestionRowMapper());
@@ -140,5 +144,30 @@ public class QuestionDao {
 
         question.setChoices(choices);
         return question;
+    }
+    public void toggleQuestionStatus(int questionId) {
+        String sql = "UPDATE Question SET active = NOT active WHERE question_id = ?";
+        jdbcTemplate.update(sql, questionId);
+    }
+    private static class QuestionWithCategoryRowMapper implements RowMapper<QuestionWithCategoryDTO> {
+        @Override
+        public QuestionWithCategoryDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Question question = new Question();
+            question.setQuestionId(rs.getInt("question_id"));
+            question.setCategoryId(rs.getInt("category_id"));
+            question.setDescription(rs.getString("description"));
+            question.setActive(rs.getBoolean("is_active"));
+            // You may need to set other properties if needed
+
+            String categoryName = rs.getString("categoryName");
+
+            return new QuestionWithCategoryDTO(question, categoryName);
+        }
+    }
+    public List<QuestionWithCategoryDTO> findAllQuestionsWithCategoryName() {
+        String sql = "SELECT q.*, c.name as categoryName " +
+                "FROM Question q " +
+                "JOIN Category c ON q.category_id = c.category_id";
+        return jdbcTemplate.query(sql, new QuestionWithCategoryRowMapper());
     }
 }

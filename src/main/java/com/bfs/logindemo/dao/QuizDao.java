@@ -135,5 +135,74 @@ public class QuizDao {
         String sql = "SELECT user_choice_id FROM QuizQuestion WHERE quiz_id = ?";
         return jdbcTemplate.queryForList(sql, Integer.class, quizId);
     }
+    public List<QuizWithDetailsDTO> findAllWithUserDetails() {
+        String sql = "SELECT q.*, u.firstname, u.lastname, c.name AS categoryName FROM Quiz q " +
+                "JOIN User u ON q.user_id = u.user_id " +
+                "JOIN Category c ON q.category_id = c.category_id " +
+                "ORDER BY q.time_end DESC";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            QuizWithDetailsDTO quiz = new QuizWithDetailsDTO();
+            quiz.setQuizId(rs.getInt("quiz_id"));
+            quiz.setUserId(rs.getInt("user_id"));
+            quiz.setCategoryId(rs.getInt("category_id"));
+            quiz.setName(rs.getString("name"));
+            quiz.setTimeStart(rs.getTimestamp("time_start"));
+            quiz.setTimeEnd(rs.getTimestamp("time_end"));
+            quiz.setFirstname(rs.getString("firstname"));
+            quiz.setLastname(rs.getString("lastname"));
+            quiz.setCategoryName(rs.getString("categoryName"));
+            quiz.setNumQuestions(calculateNumQuestions(rs.getInt("quiz_id")));
+            quiz.setScore(calculateScore(rs.getInt("quiz_id")));
+            return quiz;
+        });
+    }
+    private int calculateNumQuestions(int quizId) {
+        // Implement the logic to calculate the number of questions for the given quizId
+        String sql = "SELECT COUNT(*) FROM QuizQuestion WHERE quiz_id = ?";
+        return jdbcTemplate.queryForObject(sql, Integer.class, quizId);
+    }
+
+    private int calculateScore(int quizId) {
+        // Implement the logic to calculate the score for the given quizId
+        String sql = "SELECT COUNT(*) FROM QuizQuestion qq JOIN Choice c ON qq.user_choice_id = c.choice_id WHERE qq.quiz_id = ? AND c.is_correct = TRUE";
+        return jdbcTemplate.queryForObject(sql, Integer.class, quizId);
+    }
+
+    public List<QuizWithDetailsDTO> findAllWithFilters(Integer categoryId, Integer userId) {
+        String sql = "SELECT q.*, u.firstname, u.lastname, c.name as categoryName, " +
+                "(SELECT COUNT(*) FROM QuizQuestion qq WHERE qq.quiz_id = q.quiz_id) as numQuestions, " +
+                "(SELECT COUNT(*) FROM QuizQuestion qq JOIN Choice ch ON qq.user_choice_id = ch.choice_id WHERE qq.quiz_id = q.quiz_id AND ch.is_correct = true) as score " +
+                "FROM Quiz q " +
+                "JOIN User u ON q.user_id = u.user_id " +
+                "JOIN Category c ON q.category_id = c.category_id " +
+                "WHERE 1=1 ";
+
+
+        if (categoryId != null && categoryId > 0) {
+            sql += " AND q.category_id = " + categoryId;
+        }
+        if (userId != null && userId > 0) {
+            sql += " AND q.user_id = " + userId;
+        }
+
+        sql += " ORDER BY q.time_end DESC";
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            QuizWithDetailsDTO quiz = new QuizWithDetailsDTO();
+            quiz.setQuizId(rs.getInt("quiz_id"));
+            quiz.setUserId(rs.getInt("user_id"));
+            quiz.setCategoryId(rs.getInt("category_id"));
+            quiz.setCategoryName(rs.getString("categoryName"));
+            quiz.setFirstname(rs.getString("firstname"));
+            quiz.setLastname(rs.getString("lastname"));
+            quiz.setTimeStart(rs.getTimestamp("time_start"));
+            quiz.setTimeEnd(rs.getTimestamp("time_end"));
+            quiz.setName(rs.getString("name"));
+            quiz.setNumQuestions(rs.getInt("numQuestions"));
+            quiz.setScore(rs.getInt("score"));
+            return quiz;
+        });
+    }
 
 }

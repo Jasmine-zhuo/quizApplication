@@ -31,7 +31,7 @@ public class UserService {
         }
     }
     public Optional<Optional<User>> getUserById(int id) {
-        return Optional.ofNullable(userDao.findById(String.valueOf(id)));
+        return Optional.ofNullable(userDao.findById(id));
     }
 
     public void saveUser(User user) {
@@ -57,4 +57,12 @@ public class UserService {
         return user.isPresent() && user.get().getPassword().equals(password);
     }
 
+    public boolean validateAdminLogin(String email, String password) {
+        Optional<User> userOpt = userDao.findByEmailAndPasswordAndIsAdmin(email, password, true);
+        return userOpt.isPresent();
+    }
+
+    public void toggleUserStatus(int userId) {
+       userDao.toggleUserStatus(userId);
+    }
 }

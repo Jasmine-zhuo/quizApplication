@@ -36,8 +36,19 @@ public class LoginController {
 
         return "login";
     }
+    @GetMapping("/admin/login")
+    public String getAdminLogin(HttpServletRequest request, Model model) {
+        HttpSession session = request.getSession(false);
 
-    // validate that we are always getting a new session after login
+        // redirect to /admin/home if admin is already logged in
+        if (session != null && session.getAttribute("user") != null) {
+            return "redirect:/admin/home";
+        }
+
+        return "admin-login"; // Return the admin login view
+    }
+
+
     @PostMapping("/login")
     public String postLogin(@RequestParam String email,
                             @RequestParam String password,
@@ -62,6 +73,27 @@ public class LoginController {
         }
     }
 
+    @PostMapping("/admin/login")
+    public String postAdminLogin(@RequestParam String email,
+                                 @RequestParam String password,
+                                 HttpServletRequest request) {
+        boolean isValidAdmin = loginService.validateAdminLogin(email, password);
+
+        if (isValidAdmin) {
+            User user = loginService.userService().getUserByEmail(email).get();
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) oldSession.invalidate();
+            HttpSession newSession = request.getSession(true);
+            // store user details in session
+            newSession.setAttribute("user", user);
+            newSession.setAttribute("isAdmin", true);
+
+            return "redirect:/admin/home";
+        } else {
+            return "admin-login";
+        }
+    }
+
     @GetMapping("/logout")
     public String logout(HttpServletRequest request, Model model) {
         HttpSession oldSession = request.getSession(false);
@@ -70,5 +102,5 @@ public class LoginController {
         return "login";
     }
 
-    // If there are something wrong, will be redirected to "/error"
+
 }

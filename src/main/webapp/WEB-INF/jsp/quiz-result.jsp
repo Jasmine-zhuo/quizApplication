@@ -11,7 +11,7 @@
 </head>
 <body>
 <h2>Result</h2>
-<p>User: ${user.firstname} ${user.lastname}</p>
+<p>User: ${quizOwner.firstname} ${quizOwner.lastname}</p>
 <p>Start Time: ${quiz.timeStart}</p>
 <p>End Time: ${quiz.timeEnd}</p>
 <p>Result: ${quizResult}</p>
@@ -36,6 +36,8 @@
         </c:forEach>
     </div>
 </c:forEach>
-<a href="${pageContext.request.contextPath}/home">Take Another Quiz</a>
+<c:if test="${!isAdmin}">
+    <a href="${pageContext.request.contextPath}/home">Take Another Quiz</a>
+</c:if>
 </body>
 </html>
