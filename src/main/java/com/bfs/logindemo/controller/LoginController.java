@@ -74,6 +74,7 @@ public class LoginController {
 
                 // store user details in session
                 newSession.setAttribute("user", user);
+                newSession.setAttribute("isAdmin", user.isAdmin());
 
                 return "redirect:/home";
             }

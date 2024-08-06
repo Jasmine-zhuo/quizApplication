@@ -23,9 +23,10 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px #aaa;
-            max-width: 320px;
+            max-width: 400px;
             width: 100%;
             text-align: left;
+            box-sizing: border-box;
         }
 
         h2 {
@@ -41,12 +42,13 @@
         }
 
         input[type="text"], input[type="email"], input[type="password"] {
-            width: calc(100% - 22px);
+            width: 100%;
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         button {

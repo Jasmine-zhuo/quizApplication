@@ -26,6 +26,7 @@
             max-width: 320px;  /* Ensure max-width is the same for both */
             width: 100%;
             text-align: left;
+            box-sizing: border-box;
         }
 
         h2 {
@@ -41,12 +42,13 @@
         }
 
         input[type="text"], input[type="email"], input[type="password"] {
-            width: calc(100% - 22px);  /* Consistent width */
+            width: 100%; /* Consistent width */
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            box-sizing: border-box;
         }
 
         button {

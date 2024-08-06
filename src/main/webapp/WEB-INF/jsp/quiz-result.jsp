@@ -1,6 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ include file="navbar.jsp" %>
 
 <!DOCTYPE html>
 <html>
@@ -93,6 +92,14 @@
     </style>
 </head>
 <body>
+<!-- Conditionally include the navbar -->
+<c:if test="${isAdmin}">
+    <%@ include file="admin-navbar.jsp" %>
+</c:if>
+<c:if test="${not isAdmin}">
+    <%@ include file="navbar.jsp" %>
+</c:if>
+
 <div class="container">
     <h2>Quiz Result</h2>
     <div class="result-info">
