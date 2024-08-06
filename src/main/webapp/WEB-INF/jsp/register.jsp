@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="navbar.jsp" %>
 
 <!DOCTYPE html>
 <html>
@@ -22,7 +23,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px #aaa;
-            max-width: 300px;
+            max-width: 320px;
             width: 100%;
             text-align: left;
         }

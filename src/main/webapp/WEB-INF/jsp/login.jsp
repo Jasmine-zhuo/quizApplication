@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="navbar.jsp" %>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,7 +23,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px 0px #aaa;
-            max-width: 300px;
+            max-width: 320px;  /* Ensure max-width is the same for both */
             width: 100%;
             text-align: left;
         }
@@ -38,8 +40,8 @@
             font-weight: bold;
         }
 
-        input[type="email"], input[type="password"] {
-            width: calc(100% - 22px);
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: calc(100% - 22px);  /* Consistent width */
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ddd;
@@ -78,11 +80,30 @@
         .links a:hover {
             text-decoration: underline;
         }
+
+        .alert {
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            background-color: #ff4d4d;
+        }
+
     </style>
 </head>
 <body>
 <form action="${pageContext.request.contextPath}/login" method="post">
     <h2>Login</h2>
+    <!-- Display error message if it exists -->
+    <c:if test="${not empty error}">
+        <div class="alert alert-danger">
+                ${error}
+        </div>
+    </c:if>
+
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required>
 

@@ -3,6 +3,7 @@ import com.bfs.logindemo.dao.CategoryDao;
 import com.bfs.logindemo.domain.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,23 +16,28 @@ public class CategoryService {
         this.categoryDao = categoryDao;
     }
 
+    @Transactional(readOnly = true)
     public List<Category> getAllCategories() {
-        return categoryDao.findAll();
+        return categoryDao.findAllHibernate();
     }
 
+    @Transactional(readOnly = true)
     public Category getCategoryById(int id) {
-        return categoryDao.findById(id);
+        return categoryDao.findByIdHibernate(id);
     }
 
+    @Transactional
     public void saveCategory(Category category) {
-        categoryDao.save(category);
+        categoryDao.saveHibernate(category);
     }
 
+    @Transactional
     public void updateCategory(Category category) {
-        categoryDao.update(category);
+        categoryDao.updateHibernate(category);
     }
 
+    @Transactional
     public void deleteCategory(int id) {
-        categoryDao.delete(id);
+        categoryDao.deleteHibernate(id);
     }
 }

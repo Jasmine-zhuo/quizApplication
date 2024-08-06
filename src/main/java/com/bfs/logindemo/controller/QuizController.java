@@ -43,18 +43,13 @@ public class QuizController {
         session.setAttribute("quizId", quizId);
 
         List<Question> questions = quizService.getRandomQuestionsByCategory(categoryId);
+        if (questions.isEmpty()) {
+            model.addAttribute("error", "No active questions available for this category.");
+            return "quiz"; // Redirect to an error page or show a message
+        }
         session.setAttribute("questions", questions);
         model.addAttribute("questions", questions);
 
-        //debug statement
-//        System.out.println("Fetched Questions:");
-//        for (Question question : questions) {
-//            System.out.println("Question: " + question.getDescription());
-//            for (Choice choice : question.getChoices()) {
-//                System.out.println("Choice: " + choice.getDescription());
-//            }
-//        }
-//        System.out.println("quiz page get....");
         return "quiz";
     }
 
@@ -75,7 +70,7 @@ public class QuizController {
             if (selectedChoiceIdStr != null) {
                 selectedChoiceIds.add(Integer.parseInt(selectedChoiceIdStr));
             } else {
-                selectedChoiceIds.add(-1); // Add a placeholder for missing selection
+                selectedChoiceIds.add(-1); // Add a -1 for missing selection
             }
         }
 
@@ -84,26 +79,25 @@ public class QuizController {
 
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
-            int selectedChoiceId = selectedChoiceIds.get(i);
-            Optional<Choice> selectedChoice = question.getChoices().stream()
-                    .filter(choice -> choice.getChoiceId() == selectedChoiceId)
-                    .findFirst();
-
-            // Debug statement
-//            System.out.println("Question: " + question.getDescription());
-//            System.out.println("Selected Choice ID: " + selectedChoiceId);
-
-            if (selectedChoice.isPresent()) {
-                String result = questionService.checkAnswer(selectedChoice.get());
-                results.add(result);
-                // Debug statement
-                System.out.println("Question: " + question.getDescription());
-                System.out.println("Selected Choice: " + selectedChoice.get().getDescription());
-                System.out.println("Result: " + result);
-                if ("Correct!".equals(result)) {
-                    correctCount++;
+            Integer selectedChoiceId = selectedChoiceIds.get(i);
+            if(selectedChoiceId != null){
+                Optional<Choice> selectedChoice = question.getChoices().stream()
+                        .filter(choice -> choice.getChoiceId() == selectedChoiceId)
+                        .findFirst();
+                if (selectedChoice.isPresent()) {
+                    String result = questionService.checkAnswer(selectedChoice.get());
+                    results.add(result);
+                    // Debug statement
+                    System.out.println("Question: " + question.getDescription());
+                    System.out.println("Selected Choice: " + selectedChoice.get().getDescription());
+                    System.out.println("Result: " + result);
+                    if ("Correct!".equals(result)) {
+                        correctCount++;
+                    }
+                } else {
+                    results.add("No valid selection");
                 }
-            } else {
+            }else{
                 results.add("No selection");
             }
 //
@@ -117,6 +111,8 @@ public class QuizController {
         quizService.updateQuizEndTime(quizId);
 
         Quiz quiz = quizService.getQuizById(quizId);
+        User quizOwner = quiz.getUser();
+        model.addAttribute("quizOwner", quizOwner);
         model.addAttribute("results", results);
         model.addAttribute("quizResult", quizResult);
         model.addAttribute("user", user);
@@ -147,11 +143,12 @@ public class QuizController {
 //        System.out.println("User is admin: " + isAdmin);
 //        System.out.println("Quiz userId: " + quiz.getUserId() + ", Logged in userId: " + user.getUserId());
 
-        if (!isAdmin && quiz.getUserId() != user.getUserId()) {
+        if (!isAdmin && quiz.getUser().getUserId() != user.getUserId()) {
             return "redirect:/home";
         }
 
-        User quizOwner = quizService.getUserById(quiz.getUserId());
+        User quizOwner = quiz.getUser();
+        //User quizOwner = quizService.getUserById(quiz.getUserId());
 
         List<Question> questions = quizService.getQuestionsByQuizId(quizId);
         List<Integer> selectedChoiceIds = quizService.getSelectedChoicesByQuizId(quizId);
@@ -166,20 +163,25 @@ public class QuizController {
 
         for (int i = 0; i < questions.size(); i++) {
             Question question = questions.get(i);
-            int selectedChoiceId = selectedChoiceIds.get(i);
-            Optional<Choice> selectedChoice = question.getChoices().stream()
-                    .filter(choice -> choice.getChoiceId() == selectedChoiceId)
-                    .findFirst();
+            Integer selectedChoiceId = selectedChoiceIds.get(i);
 
-            if (selectedChoice.isPresent()) {
-                String result = questionService.checkAnswer(selectedChoice.get());
-                results.add(result);
-                if ("Correct!".equals(result)) {
-                    correctCount++;
+            if(selectedChoiceId != null){
+                Optional<Choice> selectedChoice = question.getChoices().stream()
+                        .filter(choice -> choice.getChoiceId() == selectedChoiceId)
+                        .findFirst();
+                if (selectedChoice.isPresent()) {
+                    String result = questionService.checkAnswer(selectedChoice.get());
+                    results.add(result);
+                    if ("Correct!".equals(result)) {
+                        correctCount++;
+                    }
+                } else {
+                    results.add("No valid selection");
                 }
-            } else {
+            }else{
                 results.add("No selection");
             }
+
         }
         String quizResult = correctCount >= 3 ? "Passed" : "Failed";
 

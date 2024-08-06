@@ -1,6 +1,7 @@
 <!-- contact-management.jsp -->
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ include file="admin-navbar.jsp" %>
 
 <!DOCTYPE html>
 <html>
@@ -58,9 +59,9 @@
     <thead>
     <tr>
         <th>Subject</th>
-        <th>Email</th>
-        <th>Time</th>
         <th>Message</th>
+        <th>Time</th>
+        <th>Email</th>
         <th>Action</th>
     </tr>
     </thead>

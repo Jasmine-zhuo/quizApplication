@@ -1,10 +1,12 @@
 package com.bfs.logindemo.dao;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.sql.Timestamp;
 @Getter
 @Setter
+@AllArgsConstructor
 public class QuizWithDetailsDTO {
     private int quizId;
     private int userId;

@@ -62,11 +62,27 @@
         button:hover {
             background-color: #0056b3;
         }
+        .alert {
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            background-color: #ff4d4d;
+        }
     </style>
 </head>
 <body>
 <form action="${pageContext.request.contextPath}/admin/login" method="post">
     <h2>Admin Login</h2>
+    <!-- Display error message if it exists -->
+    <c:if test="${not empty error}">
+        <div class="alert alert-danger">
+                ${error}
+        </div>
+    </c:if>
     <label for="email">Email:</label>
     <input type="email" id="email" name="email" required>
 

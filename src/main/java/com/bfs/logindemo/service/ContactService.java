@@ -4,6 +4,7 @@ import com.bfs.logindemo.dao.ContactDao;
 import com.bfs.logindemo.domain.Contact;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,23 +17,28 @@ public class ContactService {
         this.contactDao = contactDao;
     }
 
+    @Transactional(readOnly = true)
     public List<Contact> getAllContacts() {
-        return contactDao.findAll();
+        return contactDao.findAllHibernate();
     }
 
+    @Transactional(readOnly = true)
     public Contact getContactById(int id) {
-        return contactDao.findById(id);
+        return contactDao.findByIdHibernate(id);
     }
 
+    @Transactional
     public void saveContact(Contact contact) {
-        contactDao.save(contact);
+        contactDao.saveHibernate(contact);
     }
 
+    @Transactional
     public void updateContact(Contact contact) {
-        contactDao.update(contact);
+        contactDao.updateHibernate(contact);
     }
 
+    @Transactional
     public void deleteContact(int id) {
-        contactDao.delete(id);
+        contactDao.deleteHibernate(id);
     }
 }

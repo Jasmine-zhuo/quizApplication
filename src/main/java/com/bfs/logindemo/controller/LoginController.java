@@ -29,7 +29,8 @@ public class LoginController {
     public String getLogin(HttpServletRequest request, Model model) {
         HttpSession session = request.getSession(false);
 
-        // redirect to /quiz if user is already logged in
+        // redirect to /home if user is already logged in
+        //comment for testing
         if (session != null && session.getAttribute("user") != null) {
             return "redirect:/home";
         }
@@ -41,6 +42,7 @@ public class LoginController {
         HttpSession session = request.getSession(false);
 
         // redirect to /admin/home if admin is already logged in
+        //comment for testing
         if (session != null && session.getAttribute("user") != null) {
             return "redirect:/admin/home";
         }
@@ -52,46 +54,65 @@ public class LoginController {
     @PostMapping("/login")
     public String postLogin(@RequestParam String email,
                             @RequestParam String password,
-                            HttpServletRequest request) {
-        boolean isValidUser = loginService.validateLogin(email, password);
+                            HttpServletRequest request, Model model) {
+        User user = loginService.userService().getUserByEmail(email).orElse(null);
 
-        if(isValidUser) {
-            User user = loginService.userService().getUserByEmail(email).get();
-            HttpSession oldSession = request.getSession(false);
-            // invalidate old session if it exists
-            if (oldSession != null) oldSession.invalidate();
 
-            // generate new session
-            HttpSession newSession = request.getSession(true);
+        if(user != null) {
+            if (!user.isActive()) {
+                model.addAttribute("error", "Your account is blocked. Please contact support.");
+                return "login";
+            }
+            boolean isValidPassword = loginService.validateLogin(email, password);
+            if(isValidPassword) {
+                HttpSession oldSession = request.getSession(false);
+                // invalidate old session if it exists
+                if (oldSession != null) oldSession.invalidate();
 
-            // store user details in session
-            newSession.setAttribute("user", user);
+                // generate new session
+                HttpSession newSession = request.getSession(true);
 
-            return "redirect:/home";
-        } else { // if user details are invalid
-            return "login";
+                // store user details in session
+                newSession.setAttribute("user", user);
+
+                return "redirect:/home";
+            }
         }
+        // If user details are invalid or user is not found
+        model.addAttribute("error", "Invalid email or password");
+        return "login";
     }
 
     @PostMapping("/admin/login")
     public String postAdminLogin(@RequestParam String email,
                                  @RequestParam String password,
-                                 HttpServletRequest request) {
-        boolean isValidAdmin = loginService.validateAdminLogin(email, password);
+                                 HttpServletRequest request, Model model) {
+        User user = loginService.userService().getUserByEmail(email).orElse(null);
+        if (user != null) {
+            // Check if the user is active
+            if (!user.isActive()) {
+                model.addAttribute("error", "Your account is blocked. Please contact support.");
+                return "admin-login";
+            }
 
-        if (isValidAdmin) {
-            User user = loginService.userService().getUserByEmail(email).get();
-            HttpSession oldSession = request.getSession(false);
-            if (oldSession != null) oldSession.invalidate();
-            HttpSession newSession = request.getSession(true);
-            // store user details in session
-            newSession.setAttribute("user", user);
-            newSession.setAttribute("isAdmin", true);
+            // Validate the password and check if the user is an admin
+            boolean isValidAdmin = loginService.validateAdminLogin(email, password);
 
-            return "redirect:/admin/home";
-        } else {
-            return "admin-login";
+            if (isValidAdmin) {
+                HttpSession oldSession = request.getSession(false);
+                if (oldSession != null) oldSession.invalidate();
+                HttpSession newSession = request.getSession(true);
+
+                // Store user details in session
+                newSession.setAttribute("user", user);
+                newSession.setAttribute("isAdmin", true);
+
+                return "redirect:/admin/home";
+            }
         }
+
+        model.addAttribute("error", "Invalid admin credentials");
+        return "admin-login";
     }
 
     @GetMapping("/logout")
@@ -99,7 +120,7 @@ public class LoginController {
         HttpSession oldSession = request.getSession(false);
         // invalidate old session if it exists
         if(oldSession != null) oldSession.invalidate();
-        return "login";
+        return "redirect:/login";
     }
 
 

@@ -1,6 +1,8 @@
 package com.bfs.logindemo.dao;
 
 import com.bfs.logindemo.domain.User;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -17,74 +19,74 @@ import java.util.Optional;
 // In your project, you need to use mySQL database, configure the data source.
 @Repository
 public class UserDao {
-    private JdbcTemplate jdbcTemplate;
+    private final SessionFactory sessionFactory;
 
     @Autowired
-    public UserDao(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public UserDao(SessionFactory sessionFactory) {
+        //this.jdbcTemplate = jdbcTemplate;
+        this.sessionFactory = sessionFactory;
+    }
+    private Session getCurrentSession() {
+        return sessionFactory.getCurrentSession();
+    }
+    public User findUserByEmailHibernate(String email) {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("from User where email = :email", User.class)
+                .setParameter("email", email)
+                .uniqueResult();
     }
 
-    public List<User> findAll() {
-        String sql = "SELECT user_id, email, password, firstname, lastname, is_active, is_admin FROM User";
-        //return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(User.class));
-        return jdbcTemplate.query(sql, (rs, rowNum) -> {
-            User user = new User();
-            user.setUserId(rs.getInt("user_id"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setFirstname(rs.getString("firstname"));
-            user.setLastname(rs.getString("lastname"));
-            // Manually map the isActive field
-            user.setActive(rs.getBoolean("is_active")); // This line should correctly map the database boolean values
-            user.setAdmin(rs.getBoolean("is_admin"));
-            return user;
-        });
+    public Optional<User> findByIdHibernate(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        return Optional.ofNullable(session.get(User.class, userId));
     }
 
-    public Optional<User> findById(int userId) {
-        String sql = "select * from User where user_id = ?";
-        return jdbcTemplate.query(sql, new Object[]{userId}, new BeanPropertyRowMapper<>(User.class))
-                .stream()
-                .findFirst();
+    public void saveHibernate(User user) {
+        Session session = sessionFactory.getCurrentSession();
+        session.saveOrUpdate(user);
     }
 
-
-    public User getUserByEmail(String email) {
-        String sql = "select * from user where email = ?";
-        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(User.class), email);
+    public void updateHibernate(User user) {
+        Session session = sessionFactory.getCurrentSession();
+        session.update(user);
     }
 
-    public void save(User user) {
-        String sql = "insert into User(email,password, firstname, lastname, is_active, is_admin) values(?,?,?,?,?,?)";
-        jdbcTemplate.update(sql, user.getEmail(),
-                user.getPassword(), user.getFirstname(),
-                user.getLastname(),user.isActive(), user.isAdmin());
-    }
-
-    public void update(User user) {
-        String sql = "UPDATE User SET email = ?, password = ?, firstname = ?, lastname = ?, is_active = ?, is_admin = ? WHERE user_id = ?";
-        jdbcTemplate.update(sql, user.getEmail(), user.getPassword(), user.getFirstname(), user.getLastname(), user.isActive(), user.isAdmin(), user.getUserId());
-    }
-
-    public void delete(int id) {
-        String sql = "DELETE FROM User WHERE user_id = ?";
-        jdbcTemplate.update(sql, id);
-    }
-
-
-    public Optional<User> findByEmailAndPasswordAndIsAdmin(String email, String password, boolean isAdmin) {
-        String sql = "SELECT * FROM User WHERE email = ? AND password = ? AND is_admin = ?";
-        try {
-            User user = jdbcTemplate.queryForObject(sql, new Object[]{email, password, isAdmin},
-                    new BeanPropertyRowMapper<>(User.class));
-            return Optional.ofNullable(user);
-        } catch (Exception e) {
-            return Optional.empty();
+    public void deleteHibernate(int id) {
+        Session session = sessionFactory.getCurrentSession();
+        User user = session.get(User.class, id);
+        if (user != null) {
+            session.delete(user);
         }
     }
-    public void toggleUserStatus(int userId) {
-        String sql = "UPDATE User SET is_active = NOT is_active WHERE user_id = ?";
-        jdbcTemplate.update(sql, userId);
+
+    public Optional<User> findByEmailAndPasswordAndIsAdminHibernate(String email, String password, boolean isAdmin) {
+        Session session = sessionFactory.getCurrentSession();
+        return Optional.ofNullable(session.createQuery("from User where email = :email and password = :password and isAdmin = :isAdmin", User.class)
+                .setParameter("email", email)
+                .setParameter("password", password)
+                .setParameter("isAdmin", isAdmin)
+                .uniqueResult());
+    }
+
+    public void toggleUserStatusHibernate(int userId) {
+        Session session = sessionFactory.getCurrentSession();
+        User user = session.get(User.class, userId);
+        if (user != null) {
+            user.setActive(!user.isActive());
+            session.update(user);
+        }
+    }
+
+    public List<User> findAllHibernate() {
+        Session session = sessionFactory.getCurrentSession();
+        return session.createQuery("from User", User.class).getResultList();
+    }
+    public Optional<User> findByEmailAndIsAdminHibernate(String email, boolean isAdmin) {
+        Session session = sessionFactory.getCurrentSession();
+        return Optional.ofNullable(session.createQuery("from User where email = :email and isAdmin = :isAdmin", User.class)
+                .setParameter("email", email)
+                .setParameter("isAdmin", isAdmin)
+                .uniqueResult());
     }
 
 }
