@@ -7,6 +7,16 @@
 <head>
     <title>Question Management</title>
     <style>
+        /* Style the container */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px 0px #aaa;
+        }
+
         /* Style the table */
         table {
             width: 100%;
@@ -19,7 +29,7 @@
         }
 
         th, td {
-            padding: 12px;
+            padding: 8px;  /* Reduced padding to make it consistent */
             text-align: left;
         }
 
@@ -74,33 +84,36 @@
     </script>
 </head>
 <body>
-<h2>Question Management</h2>
-<table border="1">
-    <thead>
-    <tr>
-        <th>Category</th>
-        <th>Question Description</th>
-        <th>Status</th>
-        <th>Action</th>
-    </tr>
-    </thead>
-    <tbody>
-    <c:forEach var="questionDTO" items="${questions}">
+<div class="container">
+    <h2>Question Management</h2>
+    <table border="1">
+        <thead>
         <tr>
-            <td>${questionDTO.categoryName}</td>
-            <td>${questionDTO.question.description}</td>
-            <td>${questionDTO.question.active ? 'Active' : 'Suspended'}</td>
-            <td>
-                <a href="${pageContext.request.contextPath}/admin/questions/edit/${questionDTO.question.questionId}">Edit</a>
-                <form action="${pageContext.request.contextPath}/admin/questions/toggleStatus" method="post" class="toggle-status">
-                    <input type="hidden" name="questionId" value="${questionDTO.question.questionId}" />
-                    <button type="submit">${questionDTO.question.active ? 'Suspend' : 'Activate'}</button>
-                </form>
-            </td>
+            <th>Category</th>
+            <th>Question Description</th>
+            <th>Status</th>
+            <th>Action</th>
         </tr>
-    </c:forEach>
-    </tbody>
-</table>
-<a href="${pageContext.request.contextPath}/admin/questions/add">Add New Question</a>
+        </thead>
+        <tbody>
+        <c:forEach var="questionDTO" items="${questions}">
+            <tr>
+                <td>${questionDTO.categoryName}</td>
+                <td>${questionDTO.question.description}</td>
+                <td>${questionDTO.question.active ? 'Active' : 'Suspended'}</td>
+                <td>
+                    <a href="${pageContext.request.contextPath}/admin/questions/edit/${questionDTO.question.questionId}">Edit</a>
+                    <form action="${pageContext.request.contextPath}/admin/questions/toggleStatus" method="post" class="toggle-status" style="display:inline;">
+                        <input type="hidden" name="questionId" value="${questionDTO.question.questionId}" />
+                        <button type="submit">${questionDTO.question.active ? 'Suspend' : 'Activate'}</button>
+                    </form>
+                </td>
+            </tr>
+        </c:forEach>
+        </tbody>
+    </table>
+    <a href="${pageContext.request.contextPath}/admin/questions/add">Add New Question</a>
+</div>
 </body>
 </html>
+
